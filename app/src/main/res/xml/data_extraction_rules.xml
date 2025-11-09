@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!--
+        In this file you can specify which parts of your application's data you want to be backed up.
+        For more information see the docs at:
+            https://developer.android.com/guide/topics/data/autobackup
+        -->
+    </cloud-backup>
+    <device-transfer>
+        <!--
+        In this file you can specify which parts of your application's data you want to be transferred
+        to a new device.
+        For more information see the docs at:
+            https://developer.android.com/guide/topics/data/autobackup#device-to-device-transfers
+        -->
+    </device-transfer>
+</data-extraction-rules>

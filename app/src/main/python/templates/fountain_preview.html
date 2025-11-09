@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
+    <title>Fountain HTML 预览</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            overflow: auto; /* 允许滚动 */
+        }
+        #top-panel {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #b18383;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #main-app {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: auto; /* 允许子元素溢出时滚动 */
+        }
+        #fountain-editor {
+            display: none; /* 隐藏编辑框 */
+        }
+        #html-render {
+            flex: 1; /* 让预览区域占据所有剩余空间 */
+            overflow: auto; /* 允许 iframe 溢出时滚动 */
+            border: none;
+        }
+        #html-render iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="top-panel">
+        <select id="theme-selector">
+            <option value="default">Default Theme</option>
+            <option value="dark">Dark Theme</option>
+            <option value="cjk">CJK Theme</option>
+            <option value="ocean">Ocean Theme</option>
+            <option value="colorful">Colorful Theme</option>
+        </select>
+        <button id="print-button">打印</button>
+    </div>
+    <div id="main-app">
+        <textarea id="fountain-editor" spellcheck="false" placeholder="在此输入 Fountain 格式的剧本..."></textarea>
+        <div id="html-render">
+            <iframe id="preview-frame"></iframe>
+        </div>
+    </div>
+
+    <script type="module">
+        // 注意：这里的路径是 Flask/Chaquopy Web 服务器的 URL 路径，而不是文件系统路径。
+        // '/static/' 会被自动映射到 'app/src/main/python/static/' 目录。
+        import { parse } from '/static/js/fountain_parser.js';
+        import { render } from '/static/js/fountain_html_renderer.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fountainEditor = document.getElementById('fountain-editor');
+            const previewFrame = document.getElementById('preview-frame');
+            const themeSelector = document.getElementById('theme-selector');
+            const printButton = document.getElementById('print-button');
+
+            let currentContent = '';
+            // fountainEditor.focus(); // 编辑器已隐藏，无需聚焦
+
+            printButton.addEventListener('click', () => {
+               // 调用 Android 原生打印功能
+               if (window.Android && typeof window.Android.print === 'function') {
+                   window.Android.print();
+               } else {
+                   alert('打印功能不可用。');
+               }
+            });
+
+            fountainEditor.addEventListener('input', function() {
+                currentContent = this.value;
+                processFountain(currentContent);
+            });
+
+            themeSelector.addEventListener('change', function() {
+                if (currentContent) {
+                    processFountain(currentContent);
+                }
+            });
+
+            function processFountain(fileContent) {
+                try {
+                    const theme = themeSelector.value;
+                    // 在 renderer 中，路径是相对的，我们需要调整它以适应新的目录结构
+                    const fountainObject = parse(fileContent);
+                    let html = render(fountainObject, theme);
+                    
+                    // 修正 CSS 文件的引用路径
+                    html = html.replace(
+                        'href="themes/', 
+                        'href="/static/fountain_themes/'
+                    );
+
+                    const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                    doc.open();
+                    doc.write(html);
+                    doc.close();
+                } catch (error) {
+                    console.error('处理 Fountain 文件时出错:', error);
+                    const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                    doc.open();
+                    doc.write(`<html><body><h1>错误</h1><p>处理 Fountain 文件失败: ${error.message}</p></body></html>`);
+                    doc.close();
+                }
+            }
+            
+            // 暴露一个函数给 Android 端调用，用于设置编辑器内容
+            window.setFountainText = function(text) {
+                fountainEditor.value = text;
+                currentContent = text;
+                processFountain(text);
+            }
+
+            window.getFountainText = function() {
+                return fountainEditor.value;
+            }
+        });
+    </script>
+</body>
+</html>

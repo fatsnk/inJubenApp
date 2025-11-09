@@ -11,6 +11,14 @@
 *   **安卓平台**: 方便在安卓手机或平板上随时随地进行创作。
 *   **本地存储**: 不需联网，数据文件均保存在本地，并可以导出。
 
+## 下载
+<p>选择文件名不含src的压缩包，解压后安装APK文件。</p>
+<p align="left">
+  <a href="https://github.com/fatsnk/inJubenApp/releases/latest">
+    <img src="https://img.shields.io/badge/📥 下载最新版本-blue?style=for-the-badge" alt="下载按钮">
+  </a>
+</p>
+
 ## 已知问题
 
 *   界面粗糙: 由于是个人项目，主要精力集中在核心功能的实现上，UI/UX 方面还有很大的提升空间。
@@ -26,3 +34,7 @@
 *   **inJuben**: [https://github.com/injuben/injuben](https://github.com/injuben/injuben)
 
 感谢原作者的无私奉献。
+
+## 我的其它项目
+
+* 移动端AIRP项目，兼容sillytavern(酒馆)：[Forksilly](https://github.com/fatsnk/forksilly.doc)
